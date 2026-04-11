@@ -4,6 +4,7 @@ import path from 'path';
 import { parse } from 'csv-parse/sync';
 import { validateProduct } from './validate.js';
 import { transformToDesignData } from './transform.js';
+import { generateOutputs } from './generate.js';
 
 async function main() {
   console.log(chalk.blue.bold("Starting Packaging Automation Workflow\n"));
@@ -38,8 +39,9 @@ async function main() {
       console.log(chalk.green("Validated successfully."));
 
       const designData = transformToDesignData(record);
-
-      console.log(chalk.cyan("Transform complete:"), designData.illustrator_metadata.slug);
+      await generateOutputs(designData);
+    
+    console.log(chalk.cyan(`Output generated in /output\n`));
     }
 
   } catch (err) {
