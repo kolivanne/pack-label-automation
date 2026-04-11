@@ -5,10 +5,12 @@
   "main": "src/index.js",
   "type": "module",
   "scripts": {
-    "start": "node src/index.js",
-    "test": "node tests/validate.test.js",
-    "clean": "rimraf node_modules package-lock.json output/*"
-  },
+  "start": "node src/index.js",
+  "test:validate": "node tests/validate.test.js",
+  "test:transform": "node tests/transform.test.js",
+  "test": "node tests/validate.test.js && node tests/transform.test.js",
+  "clean": "rimraf node_modules package-lock.json output/*"
+},
   "engines": {
   "node": ">=18"
 },

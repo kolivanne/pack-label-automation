@@ -3,6 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { parse } from 'csv-parse/sync';
 import { validateProduct } from './validate.js';
+import { transformToDesignData } from './transform.js';
 
 async function main() {
   console.log(chalk.blue.bold("Starting Packaging Automation Workflow\n"));
@@ -35,6 +36,10 @@ async function main() {
 
       report.warnings.forEach(warn => console.log(chalk.yellow(`Warning: ${warn}`)));
       console.log(chalk.green("Validated successfully."));
+
+      const designData = transformToDesignData(record);
+
+      console.log(chalk.cyan("Transform complete:"), designData.illustrator_metadata.slug);
     }
 
   } catch (err) {

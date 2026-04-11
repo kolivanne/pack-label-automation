@@ -48,9 +48,9 @@ try {
   assert.strictEqual(resultEmptyClaims.isValid, true, "Should still be valid without claims");
   assert.ok(resultEmptyClaims.warnings.length > 0, "Should produce a warning for missing claims");
 
-  console.log("All tests passed successfully!");
+  console.log("All Validate tests passed successfully!");
 } catch (error) {
-  console.error("Test failed:");
+  console.error("Validate test failed:");
   console.error(error.message);
   process.exit(1);
 }
