@@ -1,0 +1,12 @@
+{
+  "editor.formatOnSave": true,
+  "files.exclude": {
+    "**/node_modules": true,
+    "**/output": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/output": true
+  },
+  "js/ts.updateImportsOnFileMove.enabled": "always"
+}
