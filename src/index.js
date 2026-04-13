@@ -1,13 +1,13 @@
-import chalk from 'chalk';
-import fs from 'fs';
-import path from 'path';
-import { parse } from 'csv-parse/sync';
-import { validateProduct } from './validate.js';
-import { transformToDesignData } from './transform.js';
-import { generateOutputs } from './generate.js';
+import fs from "fs";
+import path from "path";
+import { parse } from "csv-parse/sync";
+import { validateProduct } from "./validate.js";
+import { transformToDesignData } from "./transform.js";
+import { generateOutputs } from "./generate.js";
+import { logger } from "./logger.js";
 
 async function main() {
-  console.log(chalk.blue.bold("Starting Packaging Automation Workflow\n"));
+  logger.headline("Starting Packaging Automation Workflow");
 
   const filePath = path.resolve("data/products.csv");
 
@@ -16,36 +16,37 @@ async function main() {
 
     const records = parse(rawData, {
       columns: true,
-      skip_empty_lines: true
+      skip_empty_lines: true,
     });
 
     if (!Array.isArray(records) || records.length === 0) {
-      console.error(chalk.red("No valid product records found"));
+      logger.error("No valid product records found");
       process.exit(1);
     }
 
     for (const record of records) {
       const report = validateProduct(record);
 
-      console.log(chalk.bold(`\n${report.name}:`));
+      logger.section(report.name);
 
       if (!report.isValid) {
-        report.errors.forEach(err => console.log(chalk.red(`Error: ${err}`)));
-        console.log(chalk.red("Skipping generation due to critical errors.\n"));
+        report.errors.forEach((err) =>
+          logger.error(`Validation failed: ${err}`),
+        );
+        logger.warn("Skipping generation due to critical errors");
         continue;
       }
 
-      report.warnings.forEach(warn => console.log(chalk.yellow(`Warning: ${warn}`)));
-      console.log(chalk.green("Validated successfully."));
+      report.warnings.forEach((warn) => logger.warn(warn));
+      logger.success("Validated successfully");
 
       const designData = transformToDesignData(record);
       await generateOutputs(designData);
-    
-    console.log(chalk.cyan(`Output generated in /output\n`));
-    }
 
+      logger.info("Output generated in /output");
+    }
   } catch (err) {
-    console.error(chalk.red("Failed to load or parse data:"), err.message);
+    logger.error(`Failed to load or parse data: ${err.message}`);
     process.exit(1);
   }
 }
