@@ -1,5 +1,6 @@
 import assert from "node:assert";
 import fs from "fs";
+import puppeteer from "puppeteer";
 import { generateOutputs } from "../src/generate.js";
 
 console.log("Running Generate Unit Tests\n");
@@ -9,12 +10,19 @@ const mockData = {
   flavor: "Chicken",
   brand_color: "#FFAA00",
   weight: "1kg",
-  claims: ["Healthy", "Tasty"]
+  claims: ["Healthy", "Tasty"],
 };
 
+let browser;
+
 try {
+  browser = await puppeteer.launch({
+    headless: "new",
+    args: ["--no-sandbox", "--disable-setuid-sandbox"],
+  });
+
   // Test Case 1: HAPPY PATH
-  const resultPath = await generateOutputs(mockData);
+  const resultPath = await generateOutputs(mockData, browser);
 
   assert.ok(typeof resultPath === "string", "Should return file path");
   assert.ok(fs.existsSync(resultPath), "HTML file should be created");
@@ -31,23 +39,26 @@ try {
   // Test Case 2: Empty Claims (edge case)
   const edgeData = {
     ...mockData,
-    claims: []
+    claims: [],
   };
 
-  const edgeResult = await generateOutputs(edgeData);
+  const edgeResult = await generateOutputs(edgeData, browser);
   const edgeHtml = fs.readFileSync(edgeResult, "utf8");
 
   assert.ok(edgeHtml.includes("<ul"), "Should still render list container");
 
   // Test Case 3: Missing file-safe input
   try {
-    await generateOutputs({
-      product_name: "Broken",
-      flavor: "X",
-      brand_color: "#FFF",
-      weight: "1kg",
-      claims: null
-    });
+    await generateOutputs(
+      {
+        product_name: "Broken",
+        flavor: "X",
+        brand_color: "#FFF",
+        weight: "1kg",
+        claims: null,
+      },
+      browser,
+    );
 
     console.log("Should have failed but didn't");
   } catch (err) {
@@ -59,4 +70,8 @@ try {
   console.error("Generate Test failed:");
   console.error(err);
   process.exit(1);
+} finally {
+  if (browser) {
+    await browser.close();
+  }
 }

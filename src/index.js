@@ -5,11 +5,17 @@ import { validateProduct } from "./validate.js";
 import { transformToDesignData } from "./transform.js";
 import { generateOutputs } from "./generate.js";
 import { logger } from "./logger.js";
+import puppeteer from "puppeteer";
 
 async function main() {
   logger.headline("Starting Packaging Automation Workflow");
 
   const filePath = path.resolve("data/products.csv");
+
+  const browser = await puppeteer.launch({
+    headless: "new",
+    args: ["--no-sandbox", "--disable-setuid-sandbox"],
+  });
 
   try {
     const rawData = fs.readFileSync(filePath, "utf8");
@@ -41,13 +47,15 @@ async function main() {
       logger.success("Validated successfully");
 
       const designData = transformToDesignData(record);
-      await generateOutputs(designData);
+      await generateOutputs(designData, browser);
 
       logger.info("Output generated in /output");
     }
   } catch (err) {
     logger.error(`Failed to load or parse data: ${err.message}`);
     process.exit(1);
+  } finally {
+    await browser.close();
   }
 }
 
