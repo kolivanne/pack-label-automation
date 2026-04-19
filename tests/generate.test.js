@@ -21,48 +21,35 @@ try {
     args: ["--no-sandbox", "--disable-setuid-sandbox"],
   });
 
-  // Test Case 1: HAPPY PATH
+  // Test Case 1: Happy Path
   const resultPath = await generateOutputs(mockData, browser);
 
-  assert.ok(typeof resultPath === "string", "Should return file path");
-  assert.ok(fs.existsSync(resultPath), "HTML file should be created");
+  assert.ok(typeof resultPath === "string");
+  assert.ok(fs.existsSync(resultPath));
 
   const html = fs.readFileSync(resultPath, "utf8");
 
-  assert.ok(html.includes("Test Product"), "Product name should be rendered");
-  assert.ok(html.includes("Chicken"), "Flavor should be rendered");
-  assert.ok(html.includes("1kg"), "Weight should be rendered");
-  assert.ok(html.includes("#FFAA00"), "Color should be rendered");
-  assert.ok(html.includes("Healthy"), "Claim should be rendered");
-  assert.ok(html.includes("Tasty"), "Claim should be rendered");
+  assert.ok(html.includes("Test Product"));
+  assert.ok(html.includes("Chicken"));
+  assert.ok(html.includes("1kg"));
+  assert.ok(html.includes("#FFAA00"));
+  assert.ok(html.includes("Healthy"));
+  assert.ok(html.includes("Tasty"));
 
-  // Test Case 2: Empty Claims (edge case)
-  const edgeData = {
-    ...mockData,
-    claims: [],
-  };
+  // Test Case 2: Empty claims
+  const edgeData = { ...mockData, claims: [] };
 
-  const edgeResult = await generateOutputs(edgeData, browser);
-  const edgeHtml = fs.readFileSync(edgeResult, "utf8");
+  const edgePath = await generateOutputs(edgeData, browser);
+  const edgeHtml = fs.readFileSync(edgePath, "utf8");
 
-  assert.ok(edgeHtml.includes("<ul"), "Should still render list container");
+  assert.ok(edgeHtml.includes("<ul"));
 
-  // Test Case 3: Missing file-safe input
+  // Test Case 3: Missing browser
   try {
-    await generateOutputs(
-      {
-        product_name: "Broken",
-        flavor: "X",
-        brand_color: "#FFF",
-        weight: "1kg",
-        claims: null,
-      },
-      browser,
-    );
-
-    console.log("Should have failed but didn't");
+    await generateOutputs(mockData, null);
+    assert.fail("Should throw if browser is missing");
   } catch (err) {
-    console.log("Negative case passed (error thrown as expected)");
+    assert.ok(err.message.includes("Browser"));
   }
 
   console.log("All Generate tests passed!");

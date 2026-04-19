@@ -1,27 +1,47 @@
 import fs from "fs";
 import path from "path";
-import puppeteer from "puppeteer";
+import Handlebars from "handlebars";
+
+const templatePath = path.join(process.cwd(), "templates", "layout.html");
+const templateContent = fs.readFileSync(templatePath, "utf8");
+const template = Handlebars.compile(templateContent);
+
+function ensureOutputDir() {
+  const outputDir = path.join(process.cwd(), "output");
+  if (!fs.existsSync(outputDir)) {
+    fs.mkdirSync(outputDir);
+  }
+  return outputDir;
+}
+
+function safeFileName(name) {
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/gi, "_")
+    .replace(/^_|_$/g, "");
+}
+
+function renderHTML(data) {
+  return template({
+    PRODUCT_NAME: data.product_name,
+    FLAVOR: data.flavor,
+    WEIGHT: data.weight,
+    COLOR: data.brand_color,
+    CLAIMS: data.claims || [],
+  });
+}
 
 export async function generateOutputs(data, browser) {
-  const templatePath = path.join(process.cwd(), "templates", "layout.html");
-  let html = fs.readFileSync(templatePath, "utf8");
+  if (!browser) {
+    throw new Error("Browser instance is required");
+  }
 
-  const mapping = {
-    "{{PRODUCT_NAME}}": data.product_name,
-    "{{FLAVOR}}": data.flavor,
-    "{{WEIGHT}}": data.weight,
-    "{{COLOR}}": data.brand_color,
-    "{{CLAIMS}}": (data.claims || []).map((c) => `<li>${c}</li>`).join(""),
-  };
+  const outputDir = ensureOutputDir();
 
-  Object.entries(mapping).forEach(([key, val]) => {
-    html = html.replaceAll(key, val);
-  });
+  const fileName = safeFileName(data.product_name || "product");
 
-  const outputDir = path.join(process.cwd(), "output");
-  if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir);
+  const html = renderHTML(data);
 
-  const fileName = `${data.product_name.replace(/\s+/g, "_")}`;
   const htmlFilePath = path.join(outputDir, `${fileName}.html`);
   fs.writeFileSync(htmlFilePath, html);
 
