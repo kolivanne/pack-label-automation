@@ -5,13 +5,20 @@
   "main": "src/index.js",
   "type": "module",
   "scripts": {
-    "start": "node src/index.js",
-    "test:validate": "node tests/validate.test.js",
-    "test:transform": "node tests/transform.test.js",
-    "test:generate": "node tests/generate.test.js",
-    "test": "node tests/validate.test.js && node tests/transform.test.js && node tests/generate.test.js",
-    "clean": "rimraf node_modules package-lock.json output/*"
-  },
+  "start": "node src/index.js",
+
+  "test:unit": "node tests/unit/validate.test.js && node tests/unit/transform.test.js && node tests/unit/generate-html.test.js",
+
+  "test": "npm run test:unit",
+
+  "test:integration": "node tests/integration/generate.test.js",
+
+  "test:e2e": "node tests/e2e/pipeline.test.js",
+
+  "test:all": "npm run test:unit && npm run test:integration",
+
+  "clean": "rimraf node_modules package-lock.json output/*"
+},
   "engines": {
     "node": ">=18"
   },

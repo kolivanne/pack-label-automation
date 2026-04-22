@@ -15,13 +15,13 @@ function ensureOutputDir() {
 }
 
 function safeFileName(name) {
-  return name
+  return (name || "product")
     .toLowerCase()
     .replace(/[^a-z0-9]+/gi, "_")
     .replace(/^_|_$/g, "");
 }
 
-function renderHTML(data) {
+export function createHtml(data) {
   return template({
     PRODUCT_NAME: data.product_name,
     FLAVOR: data.flavor,
@@ -37,10 +37,9 @@ export async function generateOutputs(data, browser) {
   }
 
   const outputDir = ensureOutputDir();
+  const fileName = safeFileName(data.product_name);
 
-  const fileName = safeFileName(data.product_name || "product");
-
-  const html = renderHTML(data);
+  const html = createHtml(data);
 
   const htmlFilePath = path.join(outputDir, `${fileName}.html`);
   fs.writeFileSync(htmlFilePath, html);
