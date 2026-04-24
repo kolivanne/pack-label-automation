@@ -45,14 +45,26 @@ export async function generateOutputs(data, browser) {
   fs.writeFileSync(htmlFilePath, html);
 
   const page = await browser.newPage();
-  await page.setContent(html);
 
-  await page.pdf({
-    path: path.join(outputDir, `${fileName}.pdf`),
-    format: "A4",
-  });
+  try {
+    await page.setContent(html, {
+      waitUntil: "networkidle0",
+      timeout: 30000,
+    });
 
-  await page.close();
+    await page.emulateMediaType("screen");
+
+    await page.pdf({
+      path: path.join(outputDir, `${fileName}.pdf`),
+      format: "A4",
+      printBackground: true,
+      timeout: 30000,
+    });
+  } catch (err) {
+    throw new Error(`PDF generation failed for ${fileName}: ${err.message}`);
+  } finally {
+    await page.close();
+  }
 
   return htmlFilePath;
 }

@@ -14,12 +14,20 @@ const mockData = {
 try {
   const html = createHtml(mockData);
 
+  assert.ok(typeof html === "string");
+  assert.ok(html.length > 0);
+
   assert.ok(html.includes("Test Product"));
   assert.ok(html.includes("Chicken"));
   assert.ok(html.includes("1kg"));
   assert.ok(html.includes("#FFAA00"));
-  assert.ok(html.includes("Healthy"));
-  assert.ok(html.includes("Tasty"));
+
+  // stricter checks for array rendering
+  assert.ok(html.match(/Healthy/));
+  assert.ok(html.match(/Tasty/));
+
+  // ensure structure integrity
+  assert.ok(html.includes("<html") || html.includes("<body"));
 
   console.log("Generate HTML tests passed!");
 } catch (err) {

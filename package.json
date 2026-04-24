@@ -5,20 +5,14 @@
   "main": "src/index.js",
   "type": "module",
   "scripts": {
-  "start": "node src/index.js",
-
-  "test:unit": "node tests/unit/validate.test.js && node tests/unit/transform.test.js && node tests/unit/generate-html.test.js",
-
-  "test": "npm run test:unit",
-
-  "test:integration": "node tests/integration/generate.test.js",
-
-  "test:e2e": "node tests/e2e/pipeline.test.js",
-
-  "test:all": "npm run test:unit && npm run test:integration",
-
-  "clean": "rimraf node_modules package-lock.json output/*"
-},
+    "start": "node src/index.js",
+    "test:unit": "node tests/unit/validate.test.js && node tests/unit/transform.test.js && node tests/unit/generate-html.test.js",
+    "test": "npm run test:unit",
+    "test:integration": "node tests/integration/generate.test.js",
+    "test:e2e": "node tests/e2e/pipeline.test.js",
+    "test:all": "npm run test:unit && npm run test:integration",
+    "clean": "rimraf node_modules package-lock.json output/*"
+  },
   "engines": {
     "node": ">=18"
   },
@@ -26,6 +20,7 @@
     "chalk": "^5.3.0",
     "csv-parse": "^5.5.0",
     "handlebars": "^4.7.9",
+    "p-limit": "^7.3.0",
     "puppeteer": "^22.0.0"
   },
   "devDependencies": {
