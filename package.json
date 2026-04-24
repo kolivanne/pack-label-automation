@@ -6,11 +6,12 @@
   "type": "module",
   "scripts": {
     "start": "node src/index.js",
-    "test:unit": "node tests/unit/validate.test.js && node tests/unit/transform.test.js && node tests/unit/generate-html.test.js",
-    "test": "npm run test:unit",
-    "test:integration": "node tests/integration/generate.test.js",
-    "test:e2e": "node tests/e2e/pipeline.test.js",
-    "test:all": "npm run test:unit && npm run test:integration",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:unit": "vitest run tests/unit",
+    "test:integration": "vitest run tests/integration",
+    "test:e2e": "vitest run tests/e2e",
+    "test:all": "vitest run",
     "clean": "rimraf node_modules package-lock.json output/*"
   },
   "engines": {
@@ -24,6 +25,8 @@
     "puppeteer": "^22.0.0"
   },
   "devDependencies": {
-    "rimraf": "^5.0.0"
+    "@vitest/ui": "^4.1.5",
+    "rimraf": "^5.0.0",
+    "vitest": "^4.1.5"
   }
 }

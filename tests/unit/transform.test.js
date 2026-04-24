@@ -1,63 +1,49 @@
-import assert from "node:assert";
+import { describe, it, expect } from "vitest";
 import { transformToDesignData } from "../../src/transform.js";
 
-console.log("Running Transform Unit Tests\n");
+describe("transformToDesignData", () => {
+  it("transforms valid input (happy path)", () => {
+    const validInput = {
+      product_name: "Test Product",
+      flavor: "Vanilla",
+      brand_color: "#FFFFFF",
+      weight: "500g",
+      claims: "Fresh,Natural,Organic",
+    };
 
-try {
-  // Test Case 1: HAPPY PATH
-  const validInput = {
-    product_name: "Test Product",
-    flavor: "Vanilla",
-    brand_color: "#FFFFFF",
-    weight: "500g",
-    claims: "Fresh,Natural,Organic",
-  };
+    const result = transformToDesignData(validInput);
 
-  const resultHappyPath = transformToDesignData(validInput);
+    expect(result.product_name).toBe("Test Product");
+    expect(result.claims).toEqual(["Fresh", "Natural", "Organic"]);
+    expect(result.illustrator_metadata.slug).toBe("test-product");
+  });
 
-  assert.strictEqual(resultHappyPath.product_name, "Test Product");
-  assert.deepStrictEqual(resultHappyPath.claims, [
-    "Fresh",
-    "Natural",
-    "Organic",
-  ]);
-  assert.strictEqual(resultHappyPath.illustrator_metadata.slug, "test-product");
+  it("handles missing claims", () => {
+    const missingClaims = {
+      product_name: "No Claims Product",
+      flavor: "Apple",
+      brand_color: "#000000",
+      weight: "1kg",
+      claims: "",
+    };
 
-  // Test Case 2: Missing claims (edge case))
-  const missingClaims = {
-    product_name: "No Claims Product",
-    flavor: "Apple",
-    brand_color: "#000000",
-    weight: "1kg",
-    claims: "",
-  };
+    const result = transformToDesignData(missingClaims);
 
-  const resultMissingClaims = transformToDesignData(missingClaims);
+    expect(result.claims).toEqual([]);
+    expect(result.illustrator_metadata.slug).toBe("no-claims-product");
+  });
 
-  assert.deepStrictEqual(resultMissingClaims.claims, []);
-  assert.strictEqual(
-    resultMissingClaims.illustrator_metadata.slug,
-    "no-claims-product",
-  );
+  it("handles missing product name", () => {
+    const missingName = {
+      product_name: "",
+      flavor: "Berry",
+      brand_color: "#123456",
+      weight: "250g",
+      claims: "Test",
+    };
 
-  // Test Case 3: Missing product name
-  const missingName = {
-    product_name: "",
-    flavor: "Berry",
-    brand_color: "#123456",
-    weight: "250g",
-    claims: "Test",
-  };
+    const result = transformToDesignData(missingName);
 
-  const resultProductName = transformToDesignData(missingName);
-  assert.strictEqual(
-    resultProductName.illustrator_metadata.slug,
-    "unknown-product",
-  );
-
-  console.log("All Transform tests passed successfully!");
-} catch (err) {
-  console.error("Transform test failed:");
-  console.error(err.message);
-  process.exit(1);
-}
+    expect(result.illustrator_metadata.slug).toBe("unknown-product");
+  });
+});

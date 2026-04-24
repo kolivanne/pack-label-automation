@@ -1,9 +1,8 @@
-import assert from "node:assert";
+import { describe, it, expect, beforeAll, afterAll } from "vitest";
 import fs from "fs";
 import puppeteer from "puppeteer";
 import { generateOutputs } from "../../src/generate.js";
-
-console.log("Running Generate Integration Tests\n");
+import { createHtml } from "../../src/generate.js";
 
 const mockData = {
   product_name: "Test Product",
@@ -15,50 +14,39 @@ const mockData = {
 
 let browser;
 
-async function runTests() {
+beforeAll(async () => {
   browser = await puppeteer.launch({
     headless: "new",
     args: ["--no-sandbox", "--disable-setuid-sandbox"],
   });
+});
 
-  try {
-    // CASE 1: normal generation
+afterAll(async () => {
+  await browser.close();
+});
+
+describe("generate outputs", () => {
+  it("creates html file", async () => {
     const htmlPath = await generateOutputs(mockData, browser);
 
-    assert.ok(typeof htmlPath === "string");
-    assert.ok(fs.existsSync(htmlPath));
+    expect(typeof htmlPath).toBe("string");
+    expect(fs.existsSync(htmlPath)).toBe(true);
 
     const html = fs.readFileSync(htmlPath, "utf8");
+    expect(html).toContain("Test Product");
+    expect(html).toContain("Chicken");
+  });
 
-    assert.ok(html.includes("Test Product"));
-    assert.ok(html.includes("Chicken"));
-
-    // CASE 2: empty claims
+  it("handles empty claims", async () => {
     const edgeData = { ...mockData, claims: [] };
 
     const edgePath = await generateOutputs(edgeData, browser);
     const edgeHtml = fs.readFileSync(edgePath, "utf8");
 
-    assert.ok(edgeHtml.includes("<ul"));
+    expect(edgeHtml).toContain("<ul");
+  });
 
-    // CASE 3: invalid browser
-    try {
-      await generateOutputs(mockData, null);
-      assert.fail("Should throw if browser is missing");
-    } catch (err) {
-      assert.ok(err.message.includes("Browser"));
-    }
-
-    console.log("Generate integration tests passed!");
-  } catch (err) {
-    console.error("Generate integration test failed:");
-    console.error(err);
-    process.exitCode = 1;
-  } finally {
-    if (browser) {
-      await browser.close();
-    }
-  }
-}
-
-runTests();
+  it("throws without browser", async () => {
+    await expect(generateOutputs(mockData, null)).rejects.toThrow(/Browser/);
+  });
+});

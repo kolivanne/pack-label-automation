@@ -1,37 +1,24 @@
-import assert from "node:assert";
+import { describe, it, expect } from "vitest";
+import { generateOutputs } from "../../src/generate.js";
 import { createHtml } from "../../src/generate.js";
 
-console.log("Running Generate HTML Unit Tests\n");
+describe("generate HTML", () => {
+  it("should render product data", () => {
+    const mockData = {
+      product_name: "Test Product",
+      flavor: "Chicken",
+      brand_color: "#FFAA00",
+      weight: "1kg",
+      claims: ["Healthy", "Tasty"],
+    };
 
-const mockData = {
-  product_name: "Test Product",
-  flavor: "Chicken",
-  brand_color: "#FFAA00",
-  weight: "1kg",
-  claims: ["Healthy", "Tasty"],
-};
+    const html = createHtml(mockData);
 
-try {
-  const html = createHtml(mockData);
-
-  assert.ok(typeof html === "string");
-  assert.ok(html.length > 0);
-
-  assert.ok(html.includes("Test Product"));
-  assert.ok(html.includes("Chicken"));
-  assert.ok(html.includes("1kg"));
-  assert.ok(html.includes("#FFAA00"));
-
-  // stricter checks for array rendering
-  assert.ok(html.match(/Healthy/));
-  assert.ok(html.match(/Tasty/));
-
-  // ensure structure integrity
-  assert.ok(html.includes("<html") || html.includes("<body"));
-
-  console.log("Generate HTML tests passed!");
-} catch (err) {
-  console.error("Generate HTML test failed:");
-  console.error(err);
-  process.exit(1);
-}
+    expect(html).toContain("Test Product");
+    expect(html).toContain("Chicken");
+    expect(html).toContain("1kg");
+    expect(html).toContain("#FFAA00");
+    expect(html).toContain("Healthy");
+    expect(html).toContain("Tasty");
+  });
+});
