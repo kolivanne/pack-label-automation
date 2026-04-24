@@ -12,10 +12,14 @@ This project demonstrates a simplified workflow for packaging automation, connec
 ## Setup
 
 1. `npm install`
-2. `node src/index.js`
+2. `npm run test:all`
+3. `node src/index.js`
 
 ## Tech Stack
 
 - **Node.js**: Core orchestrator.
+- **Vitest**: Unit, integration, and E2E testing.
 - **Puppeteer**: PDF rendering engine.
+- **Handlebars**: HTML templating engine.
+- **CSV Parse**: Data ingestion layer.
 - **Chalk**: CLI visual feedback.
